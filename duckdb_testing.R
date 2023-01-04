@@ -19,12 +19,12 @@ DBI::dbWriteTable(con, "players", hoopR::nba_playerindex(season = '2022-23') |> 
 
 res = DBI::dbGetQuery(
   con, 
-  'DROP TABLE test'
+  'SELECT * FROM test'
 )
 
 DBI::dbExecute(
   con, 
-  'DROP TABLE IF EXISTS test'
+  'DROP TABLE test'
 )
 
 res
