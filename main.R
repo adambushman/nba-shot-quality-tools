@@ -5,7 +5,7 @@ library('hoopR')
   # Gotta fix the "possession" stuff
   # Use DuckDB somehow
   # Turn into a Shiny App somehow
-
+  # Design visualizations and tables
 
 
 
