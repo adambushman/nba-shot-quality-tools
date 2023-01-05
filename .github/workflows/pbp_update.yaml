@@ -3,7 +3,7 @@ name: pbp_update
 # Controls when the action will run.
 on:
   schedule:
-    - cron:  '0 3 * * *'
+    - cron:  '35 13 * * *'
 
 
 jobs: 
