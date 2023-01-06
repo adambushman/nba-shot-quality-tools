@@ -2,7 +2,7 @@ name: pbp_update
 
 on:
   schedule:
-    - cron:  '30 19 * * *'
+    - cron:  '35 19 * * *'
 
 jobs: 
   get-pbp:
