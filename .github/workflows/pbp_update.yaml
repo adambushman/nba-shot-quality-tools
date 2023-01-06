@@ -3,7 +3,7 @@ name: pbp_update
 # Controls when the action will run.
 on:
   schedule:
-    - cron:  '35 13 * * *'
+    - cron:  '45 18 * * *'
 
 
 jobs: 
@@ -24,7 +24,7 @@ jobs:
         R -e 'install.packages("hoopR")'
     # Run R script
     - name: New PBP
-      run: Rscript gha_scripts/pbp_data_update.R
+      run: Rscript ./gha_scripts/pbp_data_update.R
       
  # Add duckdb files, commit, and push
     - name: Commit files
