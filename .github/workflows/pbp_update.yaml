@@ -2,7 +2,7 @@ name: pbp_update
 
 on:
   schedule:
-    - cron:  '35 19 * * *'
+    - cron:  '0 20 * * *'
 
 jobs: 
   get-pbp:
@@ -30,7 +30,7 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
-      - name: Query dependencies
+      - name: Script dependencies
         run: |
           install.packages('DBI')
           install.packages('duckdb')
@@ -38,14 +38,7 @@ jobs:
           install.packages('dplyr')
           install.packages('hoopR')
         shell: Rscript {0}
-
-      - name: Cache R packages
-        uses: actions/cache@v1
-        with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
-
+        
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
