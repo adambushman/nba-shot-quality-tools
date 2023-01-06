@@ -1,13 +1,12 @@
 name: pbp_update
 
-# Controls when the action will run.
 on:
   schedule:
-    - cron:  '25 19 * * *'
+    - cron:  '30 19 * * *'
 
 jobs: 
   get-pbp:
-    # The type of runner that the job will run on
+
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
@@ -23,7 +22,6 @@ jobs:
       RSPM: ${{ matrix.config.rspm }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
-    # Load repo and install R
     steps:
       - uses: actions/checkout@v2
 
@@ -53,17 +51,15 @@ jobs:
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
         
-    # Run R script
-      - name: Generate data
+      - name: Get PBP
         run: |
           source("./gha_scripts/pbp_data_update.R")
         shell: Rscript {0} 
       
- # Add duckdb files, commit, and push
-    - name: Commit files
-      run: |
-        git config --local user.email "actions@github.com"
-        git config --local user.name "GitHub Actions"
-        git add sq-db.duckdb
-        git commit -am "PBP UPDATE"
-        git push origin main
+      - name: Commit files
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add sq-db.duckdb
+          git commit -am "PBP UPDATE"
+          git push origin main
