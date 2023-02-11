@@ -18,6 +18,32 @@ df_pbp <-
   hoopR::load_nba_pbp() |> 
   mutate(team_id = as.numeric(team_id))
 
+
+###
+# Scoring Play By Play
+###
+
+scoring_pbp <-
+  df_pbp %>%
+  filter(
+    shooting_play == TRUE &
+      !((stringr::str_detect(type_text, "No Shot") |
+           (stringr::str_detect(type_text, "Free Throw") &
+              (stringr::str_detect(type_text, "Technical") |
+                 stringr::str_detect(type_text, "Flagrant") |
+                 stringr::str_detect(type_text, "Clear Path")))))
+  ) %>%
+  arrange(game_id, game_play_number) %>%
+  mutate(sequence = row_number()) %>%
+  mutate(
+    g_type_text = case_when(
+      stringr::str_detect(type_text, "Free Throw") ~ as.character(NA), 
+      TRUE ~ type_text
+    )
+  ) %>%
+  tidyr::fill(g_type_text, .direction = "down")
+
+
 ### 
 # All Games
 ###
@@ -31,9 +57,8 @@ games <-
 ###
 
 league_averages <- 
-  df_pbp |>
-  filter(shooting_play == TRUE) |>
-  group_by(type_text) |> 
+  scoring_pbp %>%
+  group_by(g_type_text) %>%
   summarise(
     total_points = sum(score_value), 
     total_possessions = n()
@@ -47,9 +72,8 @@ league_averages <-
 ###
 
 player_averages <- 
-  df_pbp |>
-  filter(shooting_play == TRUE) |>
-  group_by(participants_0_athlete_id, type_text) |> 
+  scoring_pbp %>%
+  group_by(participants_0_athlete_id, g_type_text) |> 
   summarise(
     a_total_points = sum(score_value), 
     a_total_possessions = n(), 
@@ -73,15 +97,16 @@ my_game <-
   unlist(use.names = FALSE)
 
 game_res <- 
-  df_pbp |>
+  scoring_pbp %>%
   filter(
     game_id == my_game &
       shooting_play == TRUE
-  ) |>
-  group_by(team_id, participants_0_athlete_id, type_text) |>
+  ) %>%
+  group_by(team_id, participants_0_athlete_id, g_type_text) |>
   summarise(
     g_total_points = sum(score_value), 
-    g_total_possessions = n(), 
+    # HERE: GOTTA FIX THE # OF POSS
+    g_total_possessions = n_distinct(g_type_text), 
     .groups = 'drop'
   ) |> 
   mutate(
@@ -92,7 +117,7 @@ game_res <-
     player_averages, 
     by = c(
       'athlete_id' = 'athlete_id', 
-      'type_text' = 'type_text'
+      'g_type_text' = 'g_type_text'
     )
   ) |>
   inner_join(
